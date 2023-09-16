@@ -1,3 +1,6 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +13,7 @@ namespace ProcurandoApartamento.Web.Rest.Utilities
             if (value != null)
             {
                 var resultAsDto = mapper.Map<TDtoType>(value);
-                return (ActionResult)new OkObjectResult(resultAsDto);
+                return new OkObjectResult(resultAsDto);
             }
             return new NotFoundResult();
         }
@@ -18,7 +21,7 @@ namespace ProcurandoApartamento.Web.Rest.Utilities
 
         public static ActionResult WrapOrNotFound(object value)
         {
-            return value != null ? (ActionResult)new OkObjectResult(value) : new NotFoundResult();
+            return value != null ? new OkObjectResult(value) : new NotFoundResult();
         }
     }
 }

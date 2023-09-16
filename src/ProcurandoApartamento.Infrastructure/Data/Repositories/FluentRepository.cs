@@ -67,12 +67,6 @@ namespace ProcurandoApartamento.Infrastructure.Data.Repositories
             return await query.SingleOrDefaultAsync();
         }
 
-        public async Task<TEntity> GetFirstAsync()
-        {
-            IQueryable<TEntity> query = BuildQuery();
-            return await query.FirstOrDefaultAsync();
-        }
-
         public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
             IQueryable<TEntity> query = BuildQuery();

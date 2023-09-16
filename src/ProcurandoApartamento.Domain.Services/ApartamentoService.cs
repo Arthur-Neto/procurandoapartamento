@@ -49,7 +49,9 @@ namespace ProcurandoApartamento.Domain.Services
 
         public virtual async Task<Apartamento> EncontrarPorEstabelecimentos(List<string> estabelecimentos)
         {
-            var apartamentos = await _apartamentoRepository.QueryHelper().GetAllAsync();
+            var apartamentos = await _apartamentoRepository.QueryHelper()
+                .Filter(ap => ap.EstabelecimentoExiste)
+                .GetAllAsync();
 
             if (estabelecimentos.Any() == false)
             {
@@ -57,17 +59,14 @@ namespace ProcurandoApartamento.Domain.Services
             }
 
             var result = apartamentos
-                .Where(ap => ap.EstabelecimentoExiste)
                 .GroupBy(ap => ap.Quadra)
                 .Filter(apartamentos =>
                 {
                     return apartamentos.All(apartamento => estabelecimentos.Contains(apartamento.Estabelecimento));
                 })
-                .FirstOrDefault()
-                .OrderByDescending(ap => ap.Quadra)
                 .FirstOrDefault();
 
-            return result;
+            return result?.LastOrDefault();
         }
     }
 }
