@@ -1,13 +1,16 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using JHipsterNet.Core.Pagination;
+using JHipsterNet.Core.Pagination.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using ProcurandoApartamento.Domain.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using JHipsterNet.Core.Pagination;
-using JHipsterNet.Core.Pagination.Extensions;
-using Microsoft.EntityFrameworkCore.Query;
-using ProcurandoApartamento.Domain.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace ProcurandoApartamento.Infrastructure.Data.Repositories
 {
@@ -64,6 +67,12 @@ namespace ProcurandoApartamento.Infrastructure.Data.Repositories
             return await query.SingleOrDefaultAsync();
         }
 
+        public async Task<TEntity> GetFirstAsync()
+        {
+            IQueryable<TEntity> query = BuildQuery();
+            return await query.FirstOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<TEntity>> GetAllAsync()
         {
             IQueryable<TEntity> query = BuildQuery();
@@ -85,15 +94,9 @@ namespace ProcurandoApartamento.Infrastructure.Data.Repositories
                 query = query.AsNoTracking();
             }
 
-            if (_includeProperties != null)
-            {
-                _includeProperties.ForEach(i => { query = query.Include(i); });
-            }
+            _includeProperties?.ForEach(i => { query = query.Include(i); });
 
-            if (_include != null)
-            {
-                _include.ForEach(i => { query = i(query); });
-            }
+            _include?.ForEach(i => { query = i(query); });
 
             if (_filter != null)
             {

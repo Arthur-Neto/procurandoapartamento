@@ -1,36 +1,38 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using AutoMapper;
 using JHipsterNet.Core.Pagination;
-using ProcurandoApartamento.Domain;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using ProcurandoApartamento.Crosscutting.Exceptions;
+using ProcurandoApartamento.Domain;
+using ProcurandoApartamento.Domain.Services.Interfaces;
+using ProcurandoApartamento.Dto;
 using ProcurandoApartamento.Web.Extensions;
 using ProcurandoApartamento.Web.Filters;
 using ProcurandoApartamento.Web.Rest.Utilities;
-using ProcurandoApartamento.Domain.Repositories.Interfaces;
-using ProcurandoApartamento.Domain.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ProcurandoApartamento.Controllers
 {
-    
+
     [Route("api/apartamentos")]
     [ApiController]
     public class ApartamentosController : ControllerBase
     {
         private const string EntityName = "apartamento";
+
         private readonly ILogger<ApartamentosController> _log;
         private readonly IApartamentoService _apartamentoService;
+        private readonly IMapper _mapper;
 
-        public ApartamentosController(ILogger<ApartamentosController> log,
-        IApartamentoService apartamentoService)
+        public ApartamentosController(ILogger<ApartamentosController> log, IApartamentoService apartamentoService, IMapper mapper)
         {
             _log = log;
             _apartamentoService = apartamentoService;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -68,6 +70,16 @@ namespace ProcurandoApartamento.Controllers
             _log.LogDebug($"REST request to delete Apartamento : {id}");
             await _apartamentoService.Delete(id);
             return NoContent().WithHeaders(HeaderUtil.CreateEntityDeletionAlert(EntityName, id.ToString()));
+        }
+
+        [HttpGet("melhor")]
+        public async Task<IActionResult> MelhorApartamento([FromQuery] List<string> estabelecimentos)
+        {
+            _log.LogDebug($"REST request to get MelhorApartamento : {estabelecimentos}");
+
+            var result = await _apartamentoService.EncontrarPorEstabelecimentos(estabelecimentos);
+
+            return ActionResultUtil.WrapOrNotFoundAsDto<ApartamentoDto>(result, _mapper);
         }
     }
 }

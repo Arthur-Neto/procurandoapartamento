@@ -1,15 +1,17 @@
-using Microsoft.AspNetCore;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using JHipsterNet.Web.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Sinks.Syslog;
 using System;
 using System.IO;
 using System.Security.Authentication;
-using JHipsterNet.Web.Logging;
-using Serilog.Sinks.Syslog;
-using ILogger = Serilog.ILogger;
 using static JHipsterNet.Core.Boot.BannerPrinter;
-using Microsoft.Extensions.Hosting;
+using ILogger = Serilog.ILogger;
 
 namespace ProcurandoApartamento
 {
@@ -27,7 +29,7 @@ namespace ProcurandoApartamento
 
             try
             {
-                var appConfiguration = GetAppConfiguration();
+                IConfiguration appConfiguration = GetAppConfiguration();
                 Log.Logger = CreateLogger(appConfiguration);
 
                 CreateHostBuilder(args)

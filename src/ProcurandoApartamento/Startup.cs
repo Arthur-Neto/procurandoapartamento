@@ -1,14 +1,16 @@
-using System;
-using ProcurandoApartamento.Infrastructure.Data;
-using ProcurandoApartamento.Configuration;
-using ProcurandoApartamento.Infrastructure.Configuration;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using ProcurandoApartamento.Configuration;
+using ProcurandoApartamento.Infrastructure.Configuration;
+using ProcurandoApartamento.Infrastructure.Data;
+using System;
 
 [assembly: ApiController]
 

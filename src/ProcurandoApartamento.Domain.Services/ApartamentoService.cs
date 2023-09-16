@@ -1,8 +1,13 @@
-using System.Threading.Tasks;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using JHipsterNet.Core.Pagination;
-using ProcurandoApartamento.Domain.Services.Interfaces;
+using LanguageExt;
 using ProcurandoApartamento.Domain.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using ProcurandoApartamento.Domain.Services.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ProcurandoApartamento.Domain.Services
 {
@@ -40,6 +45,29 @@ namespace ProcurandoApartamento.Domain.Services
         {
             await _apartamentoRepository.DeleteByIdAsync(id);
             await _apartamentoRepository.SaveChangesAsync();
+        }
+
+        public virtual async Task<Apartamento> EncontrarPorEstabelecimentos(List<string> estabelecimentos)
+        {
+            var apartamentos = await _apartamentoRepository.QueryHelper().GetAllAsync();
+
+            if (estabelecimentos.Any() == false)
+            {
+                return apartamentos.LastOrDefault();
+            }
+
+            var result = apartamentos
+                .Where(ap => ap.EstabelecimentoExiste)
+                .GroupBy(ap => ap.Quadra)
+                .Filter(apartamentos =>
+                {
+                    return apartamentos.All(apartamento => estabelecimentos.Contains(apartamento.Estabelecimento));
+                })
+                .FirstOrDefault()
+                .OrderByDescending(ap => ap.Quadra)
+                .FirstOrDefault();
+
+            return result;
         }
     }
 }
