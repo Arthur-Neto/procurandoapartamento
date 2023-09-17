@@ -10,6 +10,9 @@
         <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
         <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
         <IsPackable>false</IsPackable>
+        <SpaRoot>ClientApp\</SpaRoot>
+        <SpaProxyServerUrl>https://localhost:44450</SpaProxyServerUrl>
+        <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
         <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
 
         <!-- Set this to true if you enable server-side prerendering -->
@@ -17,24 +20,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JHipsterNet.Core"  />
-        <PackageReference Include="JHipsterNet.Web"  />
-        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection"  />
-        <PackageReference Include="Hellang.Middleware.ProblemDetails"  />
-        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions"  />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson"  />
-        <PackageReference Include="Scrutor"  />
-        <PackageReference Include="Serilog.AspNetCore"  />
-        <PackageReference Include="Serilog.Settings.Configuration"  />
-        <PackageReference Include="Serilog.Sinks.Console"  />
-        <PackageReference Include="Serilog.Enrichers.Process"  />
-        <PackageReference Include="Serilog.Enrichers.Thread"  />
-        <PackageReference Include="Serilog.Sinks.SyslogMessages"  />
-        <PackageReference Include="Swashbuckle.AspNetCore"  />
-        <PackageReference Include="LanguageExt.Core"  />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt"  />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"  />
-        <PackageReference Include="BCrypt.Net-Next"  />
+        <PackageReference Include="JHipsterNet.Core" />
+        <PackageReference Include="JHipsterNet.Web" />
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" />
+        <PackageReference Include="Hellang.Middleware.ProblemDetails" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.22" />
+        <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+        <PackageReference Include="Scrutor" />
+        <PackageReference Include="Serilog.AspNetCore" />
+        <PackageReference Include="Serilog.Settings.Configuration" />
+        <PackageReference Include="Serilog.Sinks.Console" />
+        <PackageReference Include="Serilog.Enrichers.Process" />
+        <PackageReference Include="Serilog.Enrichers.Thread" />
+        <PackageReference Include="Serilog.Sinks.SyslogMessages" />
+        <PackageReference Include="Swashbuckle.AspNetCore" />
+        <PackageReference Include="LanguageExt.Core" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+        <PackageReference Include="BCrypt.Net-Next" />
     </ItemGroup>
 
     <ItemGroup>
@@ -44,5 +48,37 @@
         <ProjectReference Include="..\ProcurandoApartamento.Dto\ProcurandoApartamento.Dto.csproj" />
         <ProjectReference Include="..\ProcurandoApartamento.Domain\ProcurandoApartamento.Domain.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+        <Content Remove="$(SpaRoot)**" />
+        <None Remove="$(SpaRoot)**" />
+        <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+        <None Remove="$(SpaRoot)dist\**" />
+        <None Remove="$(SpaRoot).angular\**" />
+        <None Remove="Logs\**" />
+    </ItemGroup>
+
+    <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+        <Exec Command="node --version" ContinueOnError="true">
+            <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+        </Exec>
+        <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+        <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+    </Target>
+
+    <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+        <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
+
+        <ItemGroup>
+            <DistFiles Include="$(SpaRoot)dist\**" />
+            <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+                <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            </ResolvedFileToPublish>
+        </ItemGroup>
+    </Target>
 
 </Project>

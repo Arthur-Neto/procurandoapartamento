@@ -46,8 +46,7 @@ namespace ProcurandoApartamento
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public virtual void Configure(IApplicationBuilder app, IHostEnvironment env, IServiceProvider serviceProvider,
-            ApplicationDatabaseContext context, IOptions<SecuritySettings> securitySettingsOptions)
+        public virtual void Configure(IApplicationBuilder app, IHostEnvironment env, IServiceProvider serviceProvider, ApplicationDatabaseContext context, IOptions<SecuritySettings> securitySettingsOptions)
         {
             var securitySettings = securitySettingsOptions.Value;
             app
