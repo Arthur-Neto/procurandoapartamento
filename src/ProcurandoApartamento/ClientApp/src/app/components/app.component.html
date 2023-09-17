@@ -1,1 +1,32 @@
-<h1>Teste</h1>
+<div class="app">
+    <section class="app__checkboxes">
+        <mat-checkbox class="app__checkboxes__item"
+                      [checked]="false"
+                      (change)="setEstabelecimento(1, $event.checked)">
+            {{ 'Academia' }}
+        </mat-checkbox>
+
+        <mat-checkbox class="app__checkboxes__item"
+                      [checked]="false"
+                      (change)="setEstabelecimento(2, $event.checked)">
+            {{ 'Escola' }}
+        </mat-checkbox>
+
+        <mat-checkbox class="app__checkboxes__item"
+                      [checked]="false"
+                      (change)="setEstabelecimento(3, $event.checked)">
+            {{ 'Mercado' }}
+        </mat-checkbox>
+    </section>
+
+    <section class="app__button">
+        <button mat-raised-button color="primary" (click)="buscarMelhorApartamento()">Buscar</button>
+    </section>
+
+
+    <mat-card class="app__card">
+        <mat-card-header>
+            <mat-card-title>Quadra {{ quadra ?? 'X' }}</mat-card-title>
+        </mat-card-header>
+    </mat-card>
+</div>
