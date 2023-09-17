@@ -17,7 +17,6 @@ namespace ProcurandoApartamento
 {
     public class Program
     {
-
         const string SerilogSection = "Serilog";
         const string SyslogPort = "SyslogPort";
         const string SyslogUrl = "SyslogUrl";
@@ -49,7 +48,6 @@ namespace ProcurandoApartamento
                 Log.CloseAndFlush();
             }
         }
-
         public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder =>

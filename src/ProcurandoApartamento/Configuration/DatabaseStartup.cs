@@ -1,13 +1,14 @@
-using System;
-using ProcurandoApartamento.Infrastructure.Data;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using ProcurandoApartamento.Infrastructure.Configuration;
+using Microsoft.Extensions.Hosting;
+using ProcurandoApartamento.Infrastructure.Data;
+using System;
 
 namespace ProcurandoApartamento.Configuration
 {
@@ -18,10 +19,10 @@ namespace ProcurandoApartamento.Configuration
             string connectionString = null;
             string databaseUrl = configuration.GetValue<string>("DATABASE_URL");
 
-            if (!String.IsNullOrEmpty(databaseUrl) && Uri.IsWellFormedUriString(databaseUrl, UriKind.RelativeOrAbsolute))
+            if (!string.IsNullOrEmpty(databaseUrl) && Uri.IsWellFormedUriString(databaseUrl, UriKind.RelativeOrAbsolute))
             {
                 Console.WriteLine("DATABASE_URL will be used to create the connection string.");
-                //  Parse the connection string
+                // Parse the connection string
                 var databaseUri = new Uri(databaseUrl);
                 string db = databaseUri.LocalPath.TrimStart('/');
                 string[] userInfo = databaseUri.UserInfo.Split(':', StringSplitOptions.RemoveEmptyEntries);

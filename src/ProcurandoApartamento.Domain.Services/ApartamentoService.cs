@@ -59,14 +59,15 @@ namespace ProcurandoApartamento.Domain.Services
             }
 
             var result = apartamentos
-                .GroupBy(ap => ap.Quadra)
-                .Filter(apartamentos =>
-                {
-                    return apartamentos.All(apartamento => estabelecimentos.Contains(apartamento.Estabelecimento));
-                })
+                .GroupBy(ap => ap.Estabelecimento)
+                .Filter(apartamentos => apartamentos.All(apartamento => estabelecimentos.Contains(apartamento.Estabelecimento)))
+                .Flatten()
+                .GroupBy(p => p.Quadra)
+                .OrderByDescending(group => group.Count())
+                .ThenByDescending(group => group.Key)
                 .FirstOrDefault();
 
-            return result?.LastOrDefault();
+            return result?.FirstOrDefault();
         }
     }
 }

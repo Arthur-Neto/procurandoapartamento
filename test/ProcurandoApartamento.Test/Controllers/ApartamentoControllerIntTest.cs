@@ -1,15 +1,17 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
+using FluentAssertions;
+using Newtonsoft.Json.Linq;
+using ProcurandoApartamento.Domain;
+using ProcurandoApartamento.Domain.Repositories.Interfaces;
+using ProcurandoApartamento.Dto;
+using ProcurandoApartamento.Test.Setup;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
-using FluentAssertions;
-using ProcurandoApartamento.Infrastructure.Data;
-using ProcurandoApartamento.Domain;
-using ProcurandoApartamento.Domain.Repositories.Interfaces;
-using ProcurandoApartamento.Test.Setup;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace ProcurandoApartamento.Test.Controllers
@@ -22,7 +24,6 @@ namespace ProcurandoApartamento.Test.Controllers
             _client = _factory.CreateClient();
 
             _apartamentoRepository = _factory.GetRequiredService<IApartamentoRepository>();
-
 
             InitTest();
         }
@@ -45,15 +46,14 @@ namespace ProcurandoApartamento.Test.Controllers
 
         private Apartamento _apartamento;
 
-
-        private Apartamento CreateEntity()
+        private Apartamento CreateEntity(int quadra = DefaultQuadra, bool apDisponivel = DefaultApartamentoDisponivel, string estabelecimento = DefaultEstabelecimento, bool estabelecimentoExiste = DefaultEstabelecimentoExiste)
         {
             return new Apartamento
             {
-                Quadra = DefaultQuadra,
-                ApartamentoDisponivel = DefaultApartamentoDisponivel,
-                Estabelecimento = DefaultEstabelecimento,
-                EstabelecimentoExiste = DefaultEstabelecimentoExiste,
+                Quadra = quadra,
+                ApartamentoDisponivel = apDisponivel,
+                Estabelecimento = estabelecimento,
+                EstabelecimentoExiste = estabelecimentoExiste,
             };
         }
 
@@ -220,6 +220,99 @@ namespace ProcurandoApartamento.Test.Controllers
             apartamento1.Should().NotBe(apartamento2);
             apartamento1.Id = 0;
             apartamento1.Should().NotBe(apartamento2);
+        }
+
+        [Fact]
+        public async Task Deve_Buscar_Melhor_Apartamento_Por_Academia_E_Retornar_Apartamento_Na_Quadra_2()
+        {
+            // Arrange
+            var apartamento1 = CreateEntity(1, true, "ACADEMIA", true);
+            var apartamento2 = CreateEntity(2, true, "ACADEMIA", true);
+
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento1);
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento2);
+
+            await _apartamentoRepository.SaveChangesAsync();
+
+            // Act
+            var response = await _client.GetAsync("/api/apartamentos/melhor?estabelecimentos=ACADEMIA");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var result = await response.Content.ReadFromJsonAsync<ApartamentoDto>();
+            result.Quadra.Should().Be(apartamento2.Quadra);
+        }
+
+        [Fact]
+        public async Task Deve_Buscar_Melhor_Apartamento_Por_Academia_E_Mercado_E_Retornar_Apartamento_Na_Quadra_3()
+        {
+            // Arrange
+            var apartamento1 = CreateEntity(1, true, "ACADEMIA", true);
+            var apartamento2 = CreateEntity(2, true, "ACADEMIA", true);
+            var apartamento3 = CreateEntity(3, true, "ACADEMIA", true);
+            var apartamento31 = CreateEntity(3, true, "MERCADO", true);
+            var apartamento4 = CreateEntity(4, true, "ACADEMIA", true);
+            var apartamento5 = CreateEntity(5, true, "ACADEMIA", true);
+
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento1);
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento2);
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento3);
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento31);
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento4);
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento5);
+
+            await _apartamentoRepository.SaveChangesAsync();
+
+            // Act
+            var response = await _client.GetAsync("/api/apartamentos/melhor?estabelecimentos=ACADEMIA&estabelecimentos=MERCADO");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var result = await response.Content.ReadFromJsonAsync<ApartamentoDto>();
+            result.Quadra.Should().Be(apartamento31.Quadra);
+        }
+
+        [Fact]
+        public async Task Deve_Buscar_Melhor_Apartamento_Por_Estabelecimento_Nao_Existente_E_Retornar_NotFound()
+        {
+            // Arrange
+            var apartamento1 = CreateEntity(1, true, "ACADEMIA", true);
+            var apartamento2 = CreateEntity(2, true, "ACADEMIA", true);
+
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento1);
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento2);
+
+            await _apartamentoRepository.SaveChangesAsync();
+
+            // Act
+            var response = await _client.GetAsync("/api/apartamentos/melhor?estabelecimentos=null");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task Deve_Buscar_Melhor_Apartamento_Sem_Estabelecimento_E_Retornar_Apartamento_Na_Quadra_5()
+        {
+            // Arrange
+            var apartamento1 = CreateEntity(1, true, "ACADEMIA", true);
+            var apartamento2 = CreateEntity(2, true, "ACADEMIA", true);
+
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento1);
+            await _apartamentoRepository.CreateOrUpdateAsync(apartamento2);
+
+            await _apartamentoRepository.SaveChangesAsync();
+
+            // Act
+            var response = await _client.GetAsync("/api/apartamentos/melhor");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var result = await response.Content.ReadFromJsonAsync<ApartamentoDto>();
+            result.Quadra.Should().Be(apartamento2.Quadra);
         }
     }
 }
